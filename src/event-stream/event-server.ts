@@ -64,6 +64,7 @@ import {
 } from '../bns-constants';
 
 import * as zoneFileParser from 'zone-file';
+import { hasTokens, TokensContractHandler, TokensProcessorQueue } from './tokens-contract-handler';
 
 async function handleBurnBlockMessage(
   burnBlockMsg: CoreNodeBurnBlockMessage,
@@ -155,7 +156,8 @@ async function handleDroppedMempoolTxsMessage(
 async function handleClientMessage(
   chainId: ChainID,
   msg: CoreNodeBlockMessage,
-  db: DataStore
+  db: DataStore,
+  tokenProcessorQueue: TokensProcessorQueue
 ): Promise<void> {
   const parsedMsg = parseMessageTransactions(chainId, msg);
 
@@ -236,6 +238,21 @@ async function handleClientMessage(
         abi: JSON.stringify(tx.core_tx.contract_abi),
         canonical: true,
       });
+      //check if this contract uses fungible/non fungible tokens
+      if (
+        tx.core_tx.status === 'success' &&
+        tx.core_tx.contract_abi &&
+        hasTokens(tx.core_tx.contract_abi)
+      ) {
+        const handler = new TokensContractHandler(
+          tx.sender_address,
+          tx.parsed_tx.payload.name,
+          tx.core_tx.contract_abi,
+          db,
+          chainId
+        );
+        tokenProcessorQueue.queueHandler(handler);
+      }
     }
   }
 
@@ -530,10 +547,11 @@ interface EventMessageHandler {
 function createMessageProcessorQueue(): EventMessageHandler {
   // Create a promise queue so that only one message is handled at a time.
   const processorQueue = new PQueue({ concurrency: 1 });
+  const tokensProcessorQueue = new TokensProcessorQueue();
   const handler: EventMessageHandler = {
     handleBlockMessage: (chainId: ChainID, msg: CoreNodeBlockMessage, db: DataStore) => {
       return processorQueue
-        .add(() => handleClientMessage(chainId, msg, db))
+        .add(() => handleClientMessage(chainId, msg, db, tokensProcessorQueue))
         .catch(e => {
           logError(`Error processing core node block message`, e, msg);
           throw e;

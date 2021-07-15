@@ -1022,6 +1022,44 @@ export interface RosettaNetworkStatusResponse {
 }
 
 /**
+ * List of fungible tokens metadata
+ */
+export interface FungibleTokensMetadataList {
+  /**
+   * The number of tokens metadata to return
+   */
+  limit: number;
+  /**
+   * The number to tokens metadata to skip (starting at `0`)
+   */
+  offset: number;
+  /**
+   * The number of tokens metadata available
+   */
+  total: number;
+  results: FungibleTokenMetadata[];
+}
+
+/**
+ * List of non fungible tokens metadata
+ */
+export interface NonFungibleTokensMetadataList {
+  /**
+   * The number of tokens metadata to return
+   */
+  limit: number;
+  /**
+   * The number to tokens metadata to skip (starting at `0`)
+   */
+  offset: number;
+  /**
+   * The number of tokens metadata available
+   */
+  total: number;
+  results: NonFungibleTokenMetadata[];
+}
+
+/**
  * GET request that returns transactions
  */
 export interface MempoolTransactionListResponse {
@@ -2210,6 +2248,60 @@ export interface RosettaTransaction {
     lockTime: number;
     [k: string]: unknown | undefined;
   };
+}
+
+export interface FungibleTokenMetadata {
+  /**
+   * An optional string that is a valid URI which resolves to this token's metadata. Can be empty.
+   */
+  token_uri: string;
+  /**
+   * Identifies the asset to which this token represents
+   */
+  name: string;
+  /**
+   * Describes the asset to which this token represents
+   */
+  description: string;
+  /**
+   * A URI pointing to a resource with mime type image/* representing the asset to which this token represents. The API may provide a URI to a cached resource, dependending on configuration. Otherwise, this can be the same value as the canonical image URI.
+   */
+  image_uri: string;
+  /**
+   * The original image URI specified by the contract. A URI pointing to a resource with mime type image/* representing the asset to which this token represents. Consider making any images at a width between 320 and 1080 pixels and aspect ratio between 1.91:1 and 4:5 inclusive.
+   */
+  image_canonical_uri: string;
+  /**
+   * A shorter representation of a token. This is sometimes referred to as a "ticker". Examples: "STX", "COOL", etc. Typically, a token could be referred to as $SYMBOL when referencing it in writing.
+   */
+  symbol: string;
+  /**
+   * The number of decimal places in a token.
+   */
+  decimals: number;
+}
+
+export interface NonFungibleTokenMetadata {
+  /**
+   * An optional string that is a valid URI which resolves to this token's metadata. Can be empty.
+   */
+  token_uri: string;
+  /**
+   * Identifies the asset to which this token represents
+   */
+  name: string;
+  /**
+   * Describes the asset to which this token represents
+   */
+  description: string;
+  /**
+   * A URI pointing to a resource with mime type image/* representing the asset to which this token represents. The API may provide a URI to a cached resource, dependending on configuration. Otherwise, this can be the same value as the canonical image URI.
+   */
+  image_uri: string;
+  /**
+   * The original image URI specified by the contract. A URI pointing to a resource with mime type image/* representing the asset to which this token represents. Consider making any images at a width between 320 and 1080 pixels and aspect ratio between 1.91:1 and 4:5 inclusive.
+   */
+  image_canonical_uri: string;
 }
 
 export type TransactionEventAssetType = "transfer" | "mint" | "burn";

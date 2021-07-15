@@ -38,6 +38,7 @@ import { ChainID } from '@stacks/transactions';
 import * as pathToRegex from 'path-to-regexp';
 import * as expressListEndpoints from 'express-list-endpoints';
 import { createMiddleware as createPrometheusMiddleware } from '@promster/express';
+import { createTokenRouter } from './routes/tokens/tokens';
 
 export interface ApiServer {
   expressApp: ExpressWithAsync;
@@ -130,6 +131,7 @@ export async function startApiServer(datastore: DataStore, chainId: ChainID): Pr
       router.use('/debug', createDebugRouter(datastore));
       router.use('/status', (req, res) => res.status(200).json({ status: 'ready' }));
       router.use('/faucets', createFaucetRouter(datastore));
+      router.use('/tokens', createTokenRouter(datastore));
       return router;
     })()
   );
